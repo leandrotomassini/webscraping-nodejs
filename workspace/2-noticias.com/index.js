@@ -14,14 +14,13 @@ const uploadNewsLinks = async () => {
   await page.goto("https://infobae.com/");
 
   const newsLinks = await page.evaluate(() => {
-
     const titles = document.querySelectorAll(".headline-link");
 
     const newNewsLinks = [...titles].map((titleH) => {
       const href = titleH.href;
 
       return {
-        href
+        href,
       };
     });
 
@@ -31,12 +30,10 @@ const uploadNewsLinks = async () => {
   await fs.writeFile("data/newsLinks.json", JSON.stringify(newsLinks));
 
   await browser.close();
-}
-
+};
 
 // READ NEWS AND SAVE DATA
 const readNew = async (url) => {
-
   const browser = await puppeteer.launch({
     headless: false,
     executablePath:
@@ -48,27 +45,31 @@ const readNew = async (url) => {
   await page.goto(url);
 
   const newData = await page.evaluate(() => {
+    title = document.querySelector("h1").innerText;
 
-    title = document.querySelector('h1').innerText;
-
-    paragraphs = document.querySelectorAll('.paragraph');
+    paragraphs = document.querySelectorAll(".paragraph");
 
     const textParagraphs = [...paragraphs].map((paragraph) => {
       const text = paragraph.innerText;
       return {
-        text
+        text,
       };
     });
 
-    return textParagraphs;
+    const data = {
+      title,
+      textParagraphs,
+    };
+
+    return data;
   });
 
   await fs.writeFile("data/dataNew.json", JSON.stringify(newData));
   await browser.close();
-}
-
-
+};
 
 // uploadNewsLinks();
 
-readNew('https://www.infobae.com/sociedad/policiales/2023/09/01/condenaron-a-4-anos-y-6-meses-de-prision-efectiva-al-joven-que-golpeo-al-playero-arturo-lopez/');
+readNew(
+  "https://www.infobae.com/sociedad/policiales/2023/09/01/condenaron-a-4-anos-y-6-meses-de-prision-efectiva-al-joven-que-golpeo-al-playero-arturo-lopez/"
+);
